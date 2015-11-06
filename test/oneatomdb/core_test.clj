@@ -17,3 +17,11 @@
    )
 )
 
+(deftest filter-top-level-results
+  (testing "existing top level key and existing inner key"
+    (is (= '({:key1 "value1a" :key2 "value1b"})
+           (oa/seethe @db1 list1 wherethe key2 = value1b))))
+  (testing "existing top level key and non-existing inner key"
+    ;; nothing should match a non existing field so an empty list is returned
+    (is (empty? (oa/seethe @db1 list1 wherethe notthere = anything)))))
+
