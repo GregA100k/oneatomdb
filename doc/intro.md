@@ -10,9 +10,11 @@ Assumptions are:
 Right now:
 seethe can return the top level values
 seethe can filter the top level values by a single field
+seethe can filter the top level values by multiple fields 'and'ing the results
 
 Coming up:
-filter the results from the top level values
+handle values that are not strings
+handle 'or' or combinations of 'and' and 'or'
 project only certain keys from the returned list
 combine results from different top level keys
 

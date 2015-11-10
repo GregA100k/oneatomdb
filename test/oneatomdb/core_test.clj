@@ -25,3 +25,16 @@
     ;; nothing should match a non existing field so an empty list is returned
     (is (empty? (oa/seethe @db1 list1 wherethe notthere = anything)))))
 
+(def db2 (atom
+           {:runners [{:firstname "Greg" :lastname "Allen" :racenumber "3"}
+                      {:firstname "Another" :lastname "Allen" :racenumber "4"}
+                      {:firstname "Anon" :lastname "Ymous" :racenumber "5"}
+                     ] }
+         ))
+
+(deftest multiple-and-filters
+  (testing "existing two existing fields with and"
+    (is (= '({:firstname "Another" :lastname "Allen" :racenumber "4"})
+           (oa/seethe @db2 runners wherethe lastname = Allen andthe racenumber = 4))))
+)
+            
