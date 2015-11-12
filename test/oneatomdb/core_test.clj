@@ -37,4 +37,20 @@
     (is (= '({:firstname "Another" :lastname "Allen" :racenumber "4"})
            (oa/seethe @db2 runners wherethe lastname = Allen andthe racenumber = 4))))
 )
-            
+
+;(deftest or-filter
+;  (testing "single or filter"
+;    (is (= '({:firstname "Greg" :lastname "Allen" :racenumber "3"}
+;             {:firstname "Anon" :lastname "Ymous" :racenumber "5"}
+;            )
+;           (oa/seethe @db2 runners wherethe firstname = Greg orthe firstname = Anon)))))
+
+(deftest function-test
+  (testing "single filter"
+    (is (= '({:firstname "Greg" :lastname "Allen" :racenumber "3"})
+           (oa/seethefun @db2 :runners "wherethe" :firstname = "Greg")))))
+(deftest function-multiple-and-filters
+  (testing "existing two existing fields with and"
+    (is (= '({:firstname "Another" :lastname "Allen" :racenumber "4"})
+           (oa/seethefun @db2 :runners "wherethe" :lastname = "Allen" "andthe" :racenumber = "4"))))
+)
