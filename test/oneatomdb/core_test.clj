@@ -38,12 +38,6 @@
            (oa/seethe @db2 runners wherethe lastname = Allen andthe racenumber = 4))))
 )
 
-;(deftest or-filter
-;  (testing "single or filter"
-;    (is (= '({:firstname "Greg" :lastname "Allen" :racenumber "3"}
-;             {:firstname "Anon" :lastname "Ymous" :racenumber "5"}
-;            )
-;           (oa/seethe @db2 runners wherethe firstname = Greg orthe firstname = Anon)))))
 
 (deftest function-test
   (testing "single filter"
@@ -52,5 +46,37 @@
 (deftest function-multiple-and-filters
   (testing "existing two existing fields with and"
     (is (= '({:firstname "Another" :lastname "Allen" :racenumber "4"})
-           (oa/seethefun @db2 :runners "wherethe" :lastname = "Allen" "andthe" :racenumber = "4"))))
+           (oa/seethefun @db2 :runners "wherethe" ["andthe" :lastname = "Allen" :racenumber = "4"]))))
+)
+
+
+(deftest or-filter
+  (testing "single or filter"
+    (is (= '({:firstname "Greg" :lastname "Allen" :racenumber "3"}
+             {:firstname "Anon" :lastname "Ymous" :racenumber "5"}
+            )
+           (oa/seethefun @db2 :runners "wherethe" ["orthe" :firstname = "Greg" :firstname = "Anon"])))))
+
+(deftest test-build-compare
+  (testing "build compare function match"
+    (is ((wherethe :fname = "test") {:fname "test"})))
+  (testing "build compare function does not match"
+    (is (not ((wherethe :fname = "test") {:fname "nomatch"}))))
+)
+
+(deftest compare-either
+  (testing "or conditions"
+     (is (= '({:firstname "Another" :lastname "Allen" :racenumber "4"}
+              {:firstname "Anon" :lastname "Ymous" :racenumber "5"})
+            (oa/seethefun @db2 :runners "wherethe" ["orthe" :racenumber = "4" :racenumber = "5"])))
+)
+
+  (testing "combinations of and and or"
+    (let 
+        [l ["andthe" :lastname = "Allen" ["orthe" :racenumber = "3" :racenumber = "5"]]
+         compare-function (wherethe l)]
+     (is (= true (compare-function (get (:runners @db2) 0))))
+     (is (= false (compare-function (get (:runners @db2) 1))))
+     (is (= false (compare-function (get (:runners @db2) 2))))
+    ))
 )

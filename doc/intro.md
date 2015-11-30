@@ -12,6 +12,10 @@ seethe can return the top level values
 seethe can filter the top level values by a single field
 seethe can filter the top level values by multiple fields 'and'ing the results
 
+seethefun can filter top level values with combination of and and or 
+conditions.  And and Or conditions can be nested to build more complicated 
+queries.
+
 Coming up:
 handle values that are not strings
 handle 'or' or combinations of 'and' and 'or'

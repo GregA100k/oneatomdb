@@ -3,7 +3,11 @@
 A Clojure library designed to do queries against a map as if it were a database.
 
 All the data that drives an om site is stored inside an atom.  One atom.
-This library treats that atom like a database and provides quering tools
+In the old TV series [Adam-12](https://en.wikipedia.org/wiki/Adam-12) the
+radio calls always started out "One Adam-12. One Adam-12.  See the ..." and
+the officers were off in pursuit.  
+
+This library treats that one atom like a database and provides quering tools
 to pull data out of that one atom database.
 
 In order for this to work, the map-database needs to have top level keys
@@ -12,13 +16,9 @@ with values that are lists of maps.  The inner maps represent the rows
 of the database table.  The keys of the inner map are the column 
 names and the values are the data.
 
-In the old TV series [Adam-12](https://en.wikipedia.org/wiki/Adam-12) the
-radio calls always started out "One Adam-12. One Adam-12.  See the ..." and
-the officers were off in pursuit.  
-
 ## Usage
 
-The seethe function is used to get data out of the map
+The seethe macro is used to get data out of the map
 
 >(seethe mapdb toplevelkey)
 >(seethe mapdb toplevelkey wherethe columnname comparison columnvalue)
@@ -30,6 +30,12 @@ The seethe function is used to get data out of the map
 >                    ] }))
 >
 >(seethe @dbmap runners wherethe lastname = Runner andthe racenumber = 4)
+>
+>(seethefun @dbmap :runners "wherethe" ["orthe" :racenumber = 3 :racenumber = 4])
+
+During development, the seethe macro is being replaced by a function,
+seethefun, to make it easier to do development.  That means the field names
+have to be specified as keywords and the values have to be quoted.
 
 ## License
 
