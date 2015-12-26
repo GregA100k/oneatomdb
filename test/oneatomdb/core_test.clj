@@ -80,3 +80,9 @@
      (is (= false (compare-function (get (:runners @db2) 2))))
     ))
 )
+
+(deftest compare-with-function
+  (testing "a function as a filter"
+    (let [fullname (fn [m] (str (:firstname m) " " (:lastname m)))]
+      (is (= '({:firstname "Greg" :lastname "Allen" :racenumber "3"})
+              (oa/seethefun @db2 :runners "wherethe" fullname = "Greg Allen"))))))
