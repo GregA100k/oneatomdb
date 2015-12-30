@@ -50,10 +50,40 @@
         :else (let [[fieldname comparison fieldvalue & therest] args]
                 (build-comparison fieldname comparison fieldvalue))))
 
-(defn seethefun
-  ([db-map topic] (topic db-map))
-  ([db-map topic & filterlist]
-    (if filterlist
-      (filter (apply wherethe (rest filterlist)) (seethefun topic db-map)) )
+(defn build-join-condition [f1 comp f2]
+  (fn [m1 m2] (comp (f1 m1) (f2 m2))
+    ))
+
+(defn dojoin [firstmap secondmap joincondition]
+  (for [a firstmap
+        b secondmap
+        :when (joincondition a b)]
+        (merge a b)))
+
+(defn jointhe
+  "db is the map that topics are being selected from
+   and the fargs will be the join conditions"
+  [db & fargs]
+
+  (let [[t1 t2 & args] fargs
+        firstmap  (if (coll? t1) t1 (t1 db))
+        [onthelable acolumn comparison bcolumn & therest] args
+        joincondition (if args (build-join-condition acolumn comparison bcolumn)
+                               (fn [m1 m2] true))
+        ]
+    (if therest
+      ;; conj to build new jointhe command with the result 
+      ;; of the join of the first parms and then rest of the args
+      (apply jointhe (conj therest (dojoin firstmap (t2 db) joincondition) db))
+      (dojoin firstmap (t2 db) joincondition))
   ))
+
+(defn seethefun
+  ([db-map topic] (if (coll? topic)
+               (let [[jointhelabel & joinargs] topic]
+                     (apply jointhe (conj joinargs db-map)))
+               (topic db-map)))
+  ([db-map topic & filterlist]
+      (filter (apply wherethe (rest filterlist)) (seethefun db-map topic)) 
+))
 

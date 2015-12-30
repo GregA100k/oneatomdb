@@ -29,7 +29,12 @@
            {:runners [{:firstname "Greg" :lastname "Allen" :racenumber "3"}
                       {:firstname "Another" :lastname "Allen" :racenumber "4"}
                       {:firstname "Anon" :lastname "Ymous" :racenumber "5"}
-                     ] }
+                     ] 
+            :laps [{:runnernumber "3" :course "l" :elapsedtime 20778} ]
+            :courses [{:name "Long Loop" :id "l" :distance 3.35}
+                      {:name "Short Loop" :id "s" :distance 1}
+                     ]
+           }
          ))
 
 (deftest multiple-and-filters
@@ -86,3 +91,17 @@
     (let [fullname (fn [m] (str (:firstname m) " " (:lastname m)))]
       (is (= '({:firstname "Greg" :lastname "Allen" :racenumber "3"})
               (oa/seethefun @db2 :runners "wherethe" fullname = "Greg Allen"))))))
+
+(deftest join
+  (testing "joining runners with laps"
+    (is (= '({:firstname "Greg" :lastname "Allen" :racenumber "3"
+            :runnernumber "3" :course "l" :elapsedtime 20778})
+           (oa/seethefun @db2 ["jointhe" :runners :laps "onthe" :racenumber = :runnernumber] wherethe :racenumber = "3")))
+  )
+  (testing "joining runners with laps and courses"
+    (is (= '({:firstname "Greg" :lastname "Allen" :racenumber "3"
+            :runnernumber "3" :course "l" :elapsedtime 20778 
+            :id "l" :name "Long Loop" :distance 3.35})
+           (oa/seethefun @db2 ["jointhe" :runners :laps "onthe" :racenumber = :runnernumber :courses "onthe" :course = :id] wherethe :racenumber = "3")))
+  )
+)
