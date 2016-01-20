@@ -1,17 +1,17 @@
 (ns oneatomdb.core) 
-(defmacro seethe
+(defmacro seeThe
   ([db-map topic] `(~(keyword topic) ~db-map))
   ([db-map topic filter-list]
     (let [[operator field-name comparison field-value & therest] filter-list]
       (if operator
         `(filter #(~comparison ~(str field-value) (~(keyword field-name) %))
-           (seethe ~db-map ~topic ~therest)
+           (seeThe ~db-map ~topic ~therest)
          )
       `(~(keyword topic) ~db-map))))
   ([db-map topic operator field-name comparison field-value & therest]
     (if therest
        `(filter #(~comparison ~(str field-value) (~(keyword field-name) %))
-          (seethe ~db-map ~topic ~therest)
+          (seeThe ~db-map ~topic ~therest)
         )
        `(filter #(~comparison ~(str field-value) (~(keyword field-name) %))
           (~(keyword topic) ~db-map)
@@ -91,13 +91,13 @@
       (dojoin firstmap secondmap joincondition))
   ))
 
-(defn seethefun
+(defn seethe
   ([db-map topic] (if (coll? topic)
                (let [[jointhelabel & joinargs] topic]
                      (apply jointhe (conj joinargs db-map)))
                (topic db-map)))
   ([db-map topic & filterlist]
-      (filter (apply wherethe (rest filterlist)) (seethefun db-map topic)) 
+      (filter (apply wherethe (rest filterlist)) (seethe db-map topic)) 
 ))
 
 

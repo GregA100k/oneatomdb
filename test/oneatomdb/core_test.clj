@@ -9,21 +9,21 @@
 
 (deftest get-the-top-level
   (testing "retrieving an existing top level key"
-     (is (= (first (oa/seethe @db1 list1))
+     (is (= (first (oa/seeThe @db1 list1))
            {:key1 "value1a" :key2 "value1b"}
          )))
   (testing "retrieving a non-existing top level key"
-     (is (nil? (oa/seethe @db1 notthere)))
+     (is (nil? (oa/seeThe @db1 notthere)))
    )
 )
 
 (deftest filter-top-level-results
   (testing "existing top level key and existing inner key"
     (is (= '({:key1 "value1a" :key2 "value1b"})
-           (oa/seethe @db1 list1 wherethe key2 = value1b))))
+           (oa/seeThe @db1 list1 wherethe key2 = value1b))))
   (testing "existing top level key and non-existing inner key"
     ;; nothing should match a non existing field so an empty list is returned
-    (is (empty? (oa/seethe @db1 list1 wherethe notthere = anything)))))
+    (is (empty? (oa/seeThe @db1 list1 wherethe notthere = anything)))))
 
 (def db2 (atom
            {:runners [{:firstname "Greg" :lastname "Allen" :racenumber "3"}
@@ -40,18 +40,18 @@
 (deftest multiple-and-filters
   (testing "existing two existing fields with and"
     (is (= '({:firstname "Another" :lastname "Allen" :racenumber "4"})
-           (oa/seethe @db2 runners wherethe lastname = Allen andthe racenumber = 4))))
+           (oa/seeThe @db2 runners wherethe lastname = Allen andthe racenumber = 4))))
 )
 
 
 (deftest function-test
   (testing "single filter"
     (is (= '({:firstname "Greg" :lastname "Allen" :racenumber "3"})
-           (oa/seethefun @db2 :runners "wherethe" :firstname = "Greg")))))
+           (oa/seethe @db2 :runners "wherethe" :firstname = "Greg")))))
 (deftest function-multiple-and-filters
   (testing "existing two existing fields with and"
     (is (= '({:firstname "Another" :lastname "Allen" :racenumber "4"})
-           (oa/seethefun @db2 :runners "wherethe" ["andthe" :lastname = "Allen" :racenumber = "4"]))))
+           (oa/seethe @db2 :runners "wherethe" ["andthe" :lastname = "Allen" :racenumber = "4"]))))
 )
 
 
@@ -60,7 +60,7 @@
     (is (= '({:firstname "Greg" :lastname "Allen" :racenumber "3"}
              {:firstname "Anon" :lastname "Ymous" :racenumber "5"}
             )
-           (oa/seethefun @db2 :runners "wherethe" ["orthe" :firstname = "Greg" :firstname = "Anon"])))))
+           (oa/seethe @db2 :runners "wherethe" ["orthe" :firstname = "Greg" :firstname = "Anon"])))))
 
 (deftest test-build-compare
   (testing "build compare function match"
@@ -73,7 +73,7 @@
   (testing "or conditions"
      (is (= '({:firstname "Another" :lastname "Allen" :racenumber "4"}
               {:firstname "Anon" :lastname "Ymous" :racenumber "5"})
-            (oa/seethefun @db2 :runners "wherethe" ["orthe" :racenumber = "4" :racenumber = "5"])))
+            (oa/seethe @db2 :runners "wherethe" ["orthe" :racenumber = "4" :racenumber = "5"])))
 )
 
   (testing "combinations of and and or"
@@ -90,7 +90,7 @@
   (testing "a function as a filter"
     (let [fullname (fn [m] (str (:firstname m) " " (:lastname m)))]
       (is (= '({:firstname "Greg" :lastname "Allen" :racenumber "3"})
-              (oa/seethefun @db2 :runners "wherethe" fullname = "Greg Allen"))))))
+              (oa/seethe @db2 :runners "wherethe" fullname = "Greg Allen"))))))
 
 (deftest join
   (testing "combining the tablename and the column name into join name"
@@ -99,13 +99,13 @@
   (testing "joining runners with laps"
     (is (= '({:runners.firstname "Greg" :runners.lastname "Allen" :runners.racenumber "3"
             :laps.runnernumber "3" :laps.course "l" :laps.elapsedtime 20778})
-           (oa/seethefun @db2 ["jointhe" :runners :laps "onthe" :runners.racenumber = :laps.runnernumber] wherethe :runners.racenumber = "3")))
+           (oa/seethe @db2 ["jointhe" :runners :laps "onthe" :runners.racenumber = :laps.runnernumber] wherethe :runners.racenumber = "3")))
   )
   (testing "joining runners with laps and courses"
     (is (= '({:runners.firstname "Greg" :runners.lastname "Allen" :runners.racenumber "3"
             :laps.runnernumber "3" :laps.course "l" :laps.elapsedtime 20778 
             :courses.id "l" :courses.name "Long Loop" :courses.distance 3.35})
-           (oa/seethefun @db2 ["jointhe" :runners :laps "onthe" :runners.racenumber = :laps.runnernumber :courses "onthe" :laps.course = :courses.id] wherethe :runners.racenumber = "3")))
+           (oa/seethe @db2 ["jointhe" :runners :laps "onthe" :runners.racenumber = :laps.runnernumber :courses "onthe" :laps.course = :courses.id] wherethe :runners.racenumber = "3")))
   )
 )
 
