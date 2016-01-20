@@ -93,15 +93,38 @@
               (oa/seethefun @db2 :runners "wherethe" fullname = "Greg Allen"))))))
 
 (deftest join
+  (testing "combining the tablename and the column name into join name"
+    (is (= :testtable.testcolumn (oa/build-join-name :testtable :testcolumn)))
+  )
   (testing "joining runners with laps"
-    (is (= '({:firstname "Greg" :lastname "Allen" :racenumber "3"
-            :runnernumber "3" :course "l" :elapsedtime 20778})
-           (oa/seethefun @db2 ["jointhe" :runners :laps "onthe" :racenumber = :runnernumber] wherethe :racenumber = "3")))
+    (is (= '({:runners.firstname "Greg" :runners.lastname "Allen" :runners.racenumber "3"
+            :laps.runnernumber "3" :laps.course "l" :laps.elapsedtime 20778})
+           (oa/seethefun @db2 ["jointhe" :runners :laps "onthe" :runners.racenumber = :laps.runnernumber] wherethe :runners.racenumber = "3")))
   )
   (testing "joining runners with laps and courses"
-    (is (= '({:firstname "Greg" :lastname "Allen" :racenumber "3"
-            :runnernumber "3" :course "l" :elapsedtime 20778 
-            :id "l" :name "Long Loop" :distance 3.35})
-           (oa/seethefun @db2 ["jointhe" :runners :laps "onthe" :racenumber = :runnernumber :courses "onthe" :course = :id] wherethe :racenumber = "3")))
+    (is (= '({:runners.firstname "Greg" :runners.lastname "Allen" :runners.racenumber "3"
+            :laps.runnernumber "3" :laps.course "l" :laps.elapsedtime 20778 
+            :courses.id "l" :courses.name "Long Loop" :courses.distance 3.35})
+           (oa/seethefun @db2 ["jointhe" :runners :laps "onthe" :runners.racenumber = :laps.runnernumber :courses "onthe" :laps.course = :courses.id] wherethe :runners.racenumber = "3")))
   )
 )
+
+(deftest add-map-name-to-keys
+  (testing "add map name"
+    (let [m {:key1 "key1" :key2 "key2"}
+          mapname :m1]
+     (is (= {:m1.key1 "key1" :m1.key2 "key2"}
+            (oa/re-key m mapname))))
+  ))
+
+(def db3 (atom
+           {:runners [{:name "Greg Allen" :racenumber "3"}
+                      {:name "Another Allen" :racenumber "4"}
+                      {:name "Anon Ymous" :racenumber "5"}
+                     ] 
+            :laps [{:runnernumber "3" :course "l" :elapsedtime 20778} ]
+            :courses [{:name "Long Loop" :id "l" :distance 3.35}
+                      {:name "Short Loop" :id "s" :distance 1}
+                     ]
+           }
+         ))

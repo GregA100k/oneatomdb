@@ -54,11 +54,21 @@
   (fn [m1 m2] (comp (f1 m1) (f2 m2))
     ))
 
-(defn dojoin [firstmap secondmap joincondition]
+(defn build-join-name [mapname columnname]
+  (keyword (str (name mapname) "." (name columnname))))
+
+(defn re-key [m mapname]
+  (reduce (fn [newmap k] (assoc newmap (build-join-name mapname k) (get m k))) {}  (keys m)))
+
+(defn- re-key-list [l mapname]
+  (reduce (fn [newlist m] (conj newlist  (re-key m mapname))) [] l))
+
+(defn- dojoin [firstmap secondmap joincondition]
   (for [a firstmap
         b secondmap
         :when (joincondition a b)]
         (merge a b)))
+
 
 (defn jointhe
   "db is the map that topics are being selected from
@@ -66,16 +76,19 @@
   [db & fargs]
 
   (let [[t1 t2 & args] fargs
-        firstmap  (if (coll? t1) t1 (t1 db))
+        firstmap  (if (coll? t1) t1 (re-key-list (t1 db) t1))
+        secondmap (re-key-list (t2 db) t2)
         [onthelable acolumn comparison bcolumn & therest] args
+        ;joincolumna (build-join-name t1 acolumn)
+        ;joincolumnb (build-join-name t2 bcolumn)
         joincondition (if args (build-join-condition acolumn comparison bcolumn)
                                (fn [m1 m2] true))
         ]
     (if therest
       ;; conj to build new jointhe command with the result 
       ;; of the join of the first parms and then rest of the args
-      (apply jointhe (conj therest (dojoin firstmap (t2 db) joincondition) db))
-      (dojoin firstmap (t2 db) joincondition))
+      (apply jointhe (conj therest (dojoin firstmap secondmap joincondition) db))
+      (dojoin firstmap secondmap joincondition))
   ))
 
 (defn seethefun
@@ -86,4 +99,5 @@
   ([db-map topic & filterlist]
       (filter (apply wherethe (rest filterlist)) (seethefun db-map topic)) 
 ))
+
 
