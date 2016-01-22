@@ -18,7 +18,7 @@ names and the values are the data.
 
 ## Usage
 
-The seethe macro is used to get data out of the map
+The seethe function is used to get data out of the map
 
 >(seethe mapdb toplevelkey)
 >(seethe mapdb toplevelkey wherethe columnname comparison columnvalue)
@@ -29,17 +29,49 @@ The seethe macro is used to get data out of the map
 >                     {:firstname "Anon" :lastname "Ymous" :racenumber "5"}
 >                    ] }))
 >
->(seethe @dbmap runners wherethe lastname = Runner andthe racenumber = 4)
+>(seethe @dbmap :runners "wherethe" :lastname = "Runner")
 >
->(seethefun @dbmap :runners "wherethe" ["orthe" :racenumber = 3 :racenumber = 4])
+>(seethe @dbmap :runners "wherethe" ["orthe" :racenumber = 3 :racenumber = 4])
 
-During development, the seethe macro is being replaced by a function,
-seethefun, to make it easier to do development.  That means the field names
-have to be specified as keywords and the values have to be quoted.
+The columnname doesn't have to be a keyword, it just needs to be a function
+which will operate on the map.  If there were a fullname function that 
+put together the first name and lastname, then it can be used in a "wherethe"
+
+>(seethe @db2 :runners "wherethe" fullname = "Fast Runner")
+
+
+More than one list can be joined together using a format similar to the 
+wherethe format.  The keys for the joined together maps will be prefixed
+with the key to the list, :firstname in :runners becomes :runners.firstname.
+This joined keyword has to be used in wherethe parameters.
+
+>(def app-state (atom
+>           {:runners [{:firstname "Greg" :lastname "Allen" :racenumber "3"}
+>                      {:firstname "Another" :lastname "Allen" :racenumber "4"}
+>                      {:firstname "Anon" :lastname "Ymous" :racenumber "5"} ]
+>            :laps    [{:runnernumber "3" :course "l" :elapsedtime 20778} ]
+>            :courses [{:name "Long Loop" :id "l" :distance 3.35}
+>                      {:name "Short Loop" :id "s" :distance 1} ]
+>           }))
+>
+
+Here is an example query given the atom with :runners, :courses, and :laps.
+
+>(seethe @app-state ["jointhe" :runners :laps "onthe" :runners.racenumber = :laps.runnernumber :courses "onthe" :laps.course = :courses.id] wherethe :runners.racenumber = "3")
+>
+>({:runners.firstname "Greg" :runners.lastname "Allen" :runners.racenumber "3"
+            :laps.runnernumber "3" :laps.course "l" :laps.elapsedtime 20778
+            :courses.id "l" :courses.name "Long Loop" :courses.distance 3.35})
+
+Coming Up
+=========
+- look at replacing the "wherethe", "andthe", "orthe", "jointhe" labels with functions
+- project only certain keys from the returned list
+
 
 ## License
 
-Copyright © 2015 FIXME
+Copyright © 2015 GregA100k
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
