@@ -118,13 +118,22 @@
   ))
 
 (def db3 (atom
-           {:runners [{:name "Greg Allen" :racenumber "3"}
-                      {:name "Another Allen" :racenumber "4"}
-                      {:name "Anon Ymous" :racenumber "5"}
+           {:runners [{:firstname "Greg" :lastname "Allen" :racenumber 3}
+                      {:firstname "Another" :lastname "Allen" :racenumber 4}
+                      {:firstname "Anon" :lastname "Ymous" :racenumber 5}
                      ] 
-            :laps [{:runnernumber "3" :course "l" :elapsedtime 20778} ]
+            :laps [{:runnernumber 3 :course "l" :elapsedtime 20778} ]
             :courses [{:name "Long Loop" :id "l" :distance 3.35}
                       {:name "Short Loop" :id "s" :distance 1}
                      ]
            }
          ))
+
+(deftest numeric-values
+  (testing "joining runners with laps and courses"
+    (is (= '({:runners.firstname "Greg" :runners.lastname "Allen" :runners.racenumber 3
+            :laps.runnernumber 3 :laps.course "l" :laps.elapsedtime 20778 
+            :courses.id "l" :courses.name "Long Loop" :courses.distance 3.35})
+           (oa/seethe @db3 ["jointhe" :runners :laps "onthe" :runners.racenumber = :laps.runnernumber :courses "onthe" :laps.course = :courses.id] wherethe :runners.racenumber = 3)))
+  )
+)
