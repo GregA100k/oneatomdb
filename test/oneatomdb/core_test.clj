@@ -161,5 +161,16 @@
      (is (= newrunner1 (first selectedfirst)))
      (is (= newrunner2 (first selectedsecond)))
     ))
+
+  (testing "adding a map to a non-existing list"
+    (let [ dbi (atom {:runners [{:firstname "Existing" :lastname "Runner" :racenumber 7}]})
+          newcourse {:name "Long Loop" :code "l" :distance 8}
+          existing-courses (oa/seethe @dbi :courses)
+          insert-row (oa/insertthe dbi :courses newcourse)
+          selectedcourse (oa/seethe @dbi :courses "wherethe" :code = "l")
+         ]
+     (is (= (inc (count existing-courses)) (count (oa/seethe @dbi :courses))))
+     (is (= newcourse (first selectedcourse)))
+    ))
 ) 
           
