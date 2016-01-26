@@ -100,4 +100,9 @@
       (filter (apply wherethe (rest filterlist)) (seethe db-map topic)) 
 ))
 
+(defn insertthe [a topic newval]
+  (if (vector? newval) 
+  (swap! a assoc topic (apply conj (topic @a) newval))
+  (swap! a assoc topic (conj (topic @a) newval))
+))
 

@@ -117,15 +117,12 @@
             (oa/re-key m mapname))))
   ))
 
-(def db3 (atom
-           {:runners [{:firstname "Greg" :lastname "Allen" :racenumber 3}
+(def db3 (atom {:runners [{:firstname "Greg" :lastname "Allen" :racenumber 3}
                       {:firstname "Another" :lastname "Allen" :racenumber 4}
-                      {:firstname "Anon" :lastname "Ymous" :racenumber 5}
-                     ] 
+                      {:firstname "Anon" :lastname "Ymous" :racenumber 5} ] 
             :laps [{:runnernumber 3 :course "l" :elapsedtime 20778} ]
             :courses [{:name "Long Loop" :id "l" :distance 3.35}
-                      {:name "Short Loop" :id "s" :distance 1}
-                     ]
+                      {:name "Short Loop" :id "s" :distance 1}]
            }
          ))
 
@@ -137,3 +134,32 @@
            (oa/seethe @db3 ["jointhe" :runners :laps "onthe" :runners.racenumber = :laps.runnernumber :courses "onthe" :laps.course = :courses.id] wherethe :runners.racenumber = 3)))
   )
 )
+
+(deftest inserts
+  (testing "adding a map to an existing list"
+    (let [ dbi (atom {:runners [{:firstname "Existing" :lastname "Runner" :racenumber 7}]})
+          newrunner {:firstname "Brandnew" :lastname "Runner" :racenumber 8}
+          existing-runners (oa/seethe @dbi :runners)
+          insert-row (oa/insertthe dbi :runners newrunner)
+          selectedrunner (oa/seethe @dbi :runners "wherethe" :racenumber = 8)
+         ]
+     (is (= (inc (count existing-runners)) (count (oa/seethe @dbi :runners))))
+     (is (= newrunner (first selectedrunner)))
+    ))
+
+  (testing "adding a list of maps to an existing list"
+    (let [dbi (atom {:runners [{:firstname "Existing" :lastname "Runner" :racenumber 7}]})
+          newrunner1 {:firstname "Brandnew" :lastname "Runner" :racenumber 8}
+          newrunner2 {:firstname "Secondnew" :lastname "Runner" :racenumber 9}
+          newrunners [newrunner1 newrunner2]
+          existing-runners (oa/seethe @dbi :runners)
+          insert-row (oa/insertthe dbi :runners newrunners)
+          selectedfirst (oa/seethe @dbi :runners "wherethe" :racenumber = 8)
+          selectedsecond (oa/seethe @dbi :runners "wherethe" :racenumber = 9)
+         ]
+     (is (= (inc (inc (count existing-runners))) (count (oa/seethe @dbi :runners))))
+     (is (= newrunner1 (first selectedfirst)))
+     (is (= newrunner2 (first selectedsecond)))
+    ))
+) 
+          
