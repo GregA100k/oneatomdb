@@ -163,7 +163,7 @@
     ))
 
   (testing "adding a map to a non-existing list"
-    (let [ dbi (atom {:runners [{:firstname "Existing" :lastname "Runner" :racenumber 7}]})
+    (let [dbi (atom {:runners [{:firstname "Existing" :lastname "Runner" :racenumber 7}]})
           newcourse {:name "Long Loop" :code "l" :distance 8}
           existing-courses (oa/seethe @dbi :courses)
           insert-row (oa/insertthe dbi :courses newcourse)
@@ -173,4 +173,16 @@
      (is (= newcourse (first selectedcourse)))
     ))
 ) 
-          
+
+(deftest updates
+  (testing "changing a specific value in a list"
+    (let [first-runner {:firstname "Existing" :lastname "Runner" :racenumber 7}
+          second-runner {:firstname "Fast" :lastname "Runner" :racenumber 8}
+          dbi (atom {:runners [first-runner second-runner]})
+          update-db (oa/updatethe dbi :runners "setthe" :lastname "Racer" "wherethe" :racenumber = 8)
+          updated-runner (oa/seethe @dbi :runners "wherethe" :racenumber = 8)
+         ]
+     (is (= '({:firstname "Fast" :lastname "Racer" :racenumber 8})
+	    updated-runner))
+    ))
+)

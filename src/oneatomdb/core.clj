@@ -106,3 +106,11 @@
   (swap! a assoc topic (conj (topic @a) newval))
 ))
 
+(defn updatethe [a topic setthe column newval & filterlist]
+  (doall (map (fn [i] 
+        (let [r (get (topic @a) i)
+              mes (println "  " r)]
+         (if ((apply wherethe (rest filterlist)) r) 
+           (swap! a assoc-in [topic i column] newval))
+       )) (range (count (topic @a)))))
+)
