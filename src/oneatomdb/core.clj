@@ -1,17 +1,17 @@
 (ns oneatomdb.core) 
-(defmacro seeThe
+(defmacro select
   ([db-map topic] `(~(keyword topic) ~db-map))
   ([db-map topic filter-list]
     (let [[operator field-name comparison field-value & therest] filter-list]
       (if operator
         `(filter #(~comparison ~(str field-value) (~(keyword field-name) %))
-           (seeThe ~db-map ~topic ~therest)
+           (select ~db-map ~topic ~therest)
          )
       `(~(keyword topic) ~db-map))))
   ([db-map topic operator field-name comparison field-value & therest]
     (if therest
        `(filter #(~comparison ~(str field-value) (~(keyword field-name) %))
-          (seeThe ~db-map ~topic ~therest)
+          (select ~db-map ~topic ~therest)
         )
        `(filter #(~comparison ~(str field-value) (~(keyword field-name) %))
           (~(keyword topic) ~db-map)

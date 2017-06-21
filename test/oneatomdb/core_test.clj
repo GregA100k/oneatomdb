@@ -9,21 +9,21 @@
 
 (deftest get-the-top-level
   (testing "retrieving an existing top level key"
-     (is (= (first (oa/seeThe @db1 list1))
+     (is (= (first (oa/select @db1 list1))
            {:key1 "value1a" :key2 "value1b"}
          )))
   (testing "retrieving a non-existing top level key"
-     (is (nil? (oa/seeThe @db1 notthere)))
+     (is (nil? (oa/select @db1 notthere)))
    )
 )
 
 (deftest filter-top-level-results
   (testing "existing top level key and existing inner key"
     (is (= '({:key1 "value1a" :key2 "value1b"})
-           (oa/seeThe @db1 list1 wherethe key2 = value1b))))
+           (oa/select @db1 list1 wherethe key2 = value1b))))
   (testing "existing top level key and non-existing inner key"
     ;; nothing should match a non existing field so an empty list is returned
-    (is (empty? (oa/seeThe @db1 list1 wherethe notthere = anything)))))
+    (is (empty? (oa/select @db1 list1 wherethe notthere = anything)))))
 
 (def db2 (atom
            {:runners [{:firstname "Greg" :lastname "Allen" :racenumber "3"}
@@ -40,7 +40,7 @@
 (deftest multiple-and-filters
   (testing "existing two existing fields with and"
     (is (= '({:firstname "Another" :lastname "Allen" :racenumber "4"})
-           (oa/seeThe @db2 runners wherethe lastname = Allen andthe racenumber = 4))))
+           (oa/select @db2 runners wherethe lastname = Allen andthe racenumber = 4))))
 )
 
 
