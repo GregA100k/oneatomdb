@@ -1,4 +1,5 @@
 (ns oneatomdb.core) 
+
 (defmacro select
   ([db-map topic] `(~(keyword topic) ~db-map))
   ([db-map topic filter-list]
@@ -8,17 +9,22 @@
            (select ~db-map ~topic ~therest)
          )
       `(~(keyword topic) ~db-map))))
+  ([db-map topic operator filter-list]
+    (let [[operator field-name comparison field-value & therest] filter-list]
+      (if operator
+        `(filter ~filter-list (select ~db-map ~topic))
+        `(~(keyword topic) ~db-map))))
   ([db-map topic operator field-name comparison field-value & therest]
     (if therest
        `(filter #(~comparison ~(str field-value) (~(keyword field-name) %))
           (select ~db-map ~topic ~therest)
         )
-       `(filter #(~comparison ~(str field-value) (~(keyword field-name) %))
+       `(filter #(~comparison ~field-value (~field-name %))
           (~(keyword topic) ~db-map)
         )
     )))
 
-(declare wherethe)
+(declare where)
 
 (defn build-comparison [field-name comparison field-value]
   (fn [m]
@@ -26,7 +32,7 @@
 
 (defn build-comparison-list [& filterlist]
   (cond (empty? filterlist) []
-        (coll? (first filterlist)) (conj (apply build-comparison-list (rest filterlist)) (apply wherethe (first filterlist)))
+        (coll? (first filterlist)) (conj (apply build-comparison-list (rest filterlist)) (apply where (first filterlist)))
         :else (let [[field-name comparison field-value & therest] filterlist]
                 (conj (apply build-comparison-list therest) (build-comparison field-name comparison field-value)))
   ))
@@ -42,11 +48,11 @@
 ))
 
 
-(defn wherethe [& args]
+(defn where [& args]
   (cond (empty? args) (fn [m] true)
         (= "andthe" (first args)) (apply andthe (rest args))
         (= "orthe"  (first args)) (apply orthe (rest args))
-        (coll? (first args)) (apply wherethe (first args))
+        (coll? (first args)) (apply where (first args))
         :else (let [[fieldname comparison fieldvalue & therest] args]
                 (build-comparison fieldname comparison fieldvalue))))
 
@@ -97,7 +103,7 @@
                      (apply jointhe (conj joinargs db-map)))
                (topic db-map)))
   ([db-map topic & filterlist]
-      (filter (apply wherethe (rest filterlist)) (seethe db-map topic)) 
+      (filter (apply where (rest filterlist)) (seethe db-map topic)) 
 ))
 
 (defn insertthe [a topic newval]
@@ -107,7 +113,7 @@
 ))
 
 (defn updatethe [a topic setthe column newval & filterlist]
-  (let [pred (apply wherethe (rest filterlist))
+  (let [pred (apply where (rest filterlist))
         updatefun (fn [idx itm] 
                    (if (pred itm)
                      (swap! a assoc-in [topic idx column] newval)))

@@ -18,32 +18,32 @@ names and the values are the data.
 
 ## Usage
 
-The seethe function is used to get data out of the map
+The "select" function is used to get data out of the map
 
->(seethe mapdb toplevelkey)
->(seethe mapdb toplevelkey wherethe columnname comparison columnvalue)
+>(select mapdb toplevelkey)
+>(select mapdb toplevelkey where columnname comparison columnvalue)
 
 >(def dbmap (atom
->          {:runners [{:firstname "Fast" :lastname "Runner" :racenumber "3"}
->                     {:firstname "Slow" :lastname "Runner" :racenumber "4"}
->                     {:firstname "Anon" :lastname "Ymous" :racenumber "5"}
+>          {:runners [{:firstname "Fast" :lastname "Runner" :racenumber 3}
+>                     {:firstname "Slow" :lastname "Runner" :racenumber 4}
+>                     {:firstname "Anon" :lastname "Ymous" :racenumber 5}
 >                    ] }))
 >
->(seethe @dbmap :runners "wherethe" :lastname = "Runner")
+>(select @dbmap :runners where :lastname = "Runner")
 >
->(seethe @dbmap :runners "wherethe" ["orthe" :racenumber = 3 :racenumber = 4])
+>(select @dbmap :runners where ["orthe" :racenumber = 3 :racenumber = 4])
 
 The columnname doesn't have to be a keyword, it just needs to be a function
 which will operate on the map.  If there were a fullname function that 
-put together the first name and lastname, then it can be used in a "wherethe"
+put together the first name and lastname, then it can be used in a "where"
 
->(seethe @db2 :runners "wherethe" fullname = "Fast Runner")
+>(seethe @db2 :runners where fullname = "Fast Runner")
 
 
 More than one list can be joined together using a format similar to the 
-wherethe format.  The keys for the joined together maps will be prefixed
+where format.  The keys for the joined together maps will be prefixed
 with the key to the list, :firstname in :runners becomes :runners.firstname.
-This joined keyword has to be used in wherethe parameters.
+This joined keyword has to be used in where parameters.
 
 >(def app-state (atom
 >           {:runners [{:firstname "Greg" :lastname "Allen" :racenumber "3"}
