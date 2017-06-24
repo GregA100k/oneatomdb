@@ -15,14 +15,19 @@
         `(filter ~filter-list (select ~db-map ~topic))
         `(~(keyword topic) ~db-map))))
   ([db-map topic operator field-name comparison field-value & therest]
-    (if therest
-       `(filter #(~comparison ~(str field-value) (~(keyword field-name) %))
-          (select ~db-map ~topic ~therest)
-        )
-       `(filter #(~comparison ~field-value (~field-name %))
-          (~(keyword topic) ~db-map)
-        )
-    )))
+    (if (coll? topic)
+      (let [[jointhelabel table1 table2 onoperator joincomparefield joincompareoperator joincomparevalue] topic]
+        `(filter #(~comparison ~field-value (~(keyword field-name) %))
+                     (~jointhelabel ~db-map ~table1 ~table2 ~onoperator ~joincomparefield ~joincompareoperator ~joincomparevalue)))
+      (if therest
+         `(filter #(~comparison ~(str field-value) (~(keyword field-name) %))
+            (select ~db-map ~topic ~therest)
+          )
+         `(filter #(~comparison ~field-value (~field-name %))
+            (~(keyword topic) ~db-map)
+          )
+         ))
+    ))
 
 (declare where)
 
