@@ -16,17 +16,16 @@
         `(~(keyword topic) ~db-map))))
   ([db-map topic operator field-name comparison field-value & therest]
     (if (coll? topic)
-      (let [[jointhelabel table1 table2 onoperator joincomparefield joincompareoperator joincomparevalue] topic]
+      (let [[jointhelabel & joinrest] topic]
         `(filter #(~comparison ~field-value (~(keyword field-name) %))
-                     (~jointhelabel ~db-map ~table1 ~table2 ~onoperator ~joincomparefield ~joincompareoperator ~joincomparevalue)))
+                   (~jointhelabel ~db-map ~@joinrest)))
       (if therest
          `(filter #(~comparison ~(str field-value) (~(keyword field-name) %))
             (select ~db-map ~topic ~therest)
           )
          `(filter #(~comparison ~field-value (~field-name %))
             (~(keyword topic) ~db-map)
-          )
-         ))
+          )))
     ))
 
 (declare where)
@@ -101,15 +100,6 @@
       (apply jointhe (conj therest (dojoin firstmap secondmap joincondition) db))
       (dojoin firstmap secondmap joincondition))
   ))
-
-(defn seethe
-  ([db-map topic] (if (coll? topic)
-               (let [[jointhelabel & joinargs] topic]
-                     (apply jointhe (conj joinargs db-map)))
-               (topic db-map)))
-  ([db-map topic & filterlist]
-      (filter (apply where (rest filterlist)) (seethe db-map topic)) 
-))
 
 (defn insertthe [a topic newval]
   (if (vector? newval) 

@@ -112,7 +112,7 @@
     (is (= '({:runners.firstname "Greg" :runners.lastname "Allen" :runners.racenumber 3
             :laps.runnernumber 3 :laps.course "l" :laps.elapsedtime 20778 
             :courses.id "l" :courses.name "Long Loop" :courses.distance 3.35})
-           (oa/seethe @db2 ["jointhe" :runners :laps "onthe" :runners.racenumber = :laps.runnernumber :courses "onthe" :laps.course = :courses.id] where :runners.racenumber = 3)))
+           (oa/select @db2 (jointhe :runners :laps "onthe" :runners.racenumber = :laps.runnernumber :courses "onthe" :laps.course = :courses.id) where :runners.racenumber = 3)))
   )
 )
 
@@ -138,7 +138,7 @@
     (is (= '({:runners.firstname "Greg" :runners.lastname "Allen" :runners.racenumber 3
             :laps.runnernumber 3 :laps.course "l" :laps.elapsedtime 20778 
             :courses.id "l" :courses.name "Long Loop" :courses.distance 3.35})
-           (oa/seethe @db3 ["jointhe" :runners :laps "onthe" :runners.racenumber = :laps.runnernumber :courses "onthe" :laps.course = :courses.id] where :runners.racenumber = 3)))
+           (oa/select @db3 (jointhe :runners :laps "onthe" :runners.racenumber = :laps.runnernumber :courses "onthe" :laps.course = :courses.id) where :runners.racenumber = 3)))
   )
 )
 
