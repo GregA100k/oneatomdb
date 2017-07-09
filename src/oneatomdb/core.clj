@@ -80,7 +80,7 @@
         (merge a b)))
 
 
-(defn jointhe
+(defn join
   "db is the map that topics are being selected from
    and the fargs will be the join conditions"
   [db & fargs]
@@ -95,9 +95,9 @@
                                (fn [m1 m2] true))
         ]
     (if therest
-      ;; conj to build new jointhe command with the result 
+      ;; conj to build new join command with the result 
       ;; of the join of the first parms and then rest of the args
-      (apply jointhe (conj therest (dojoin firstmap secondmap joincondition) db))
+      (apply join (conj therest (dojoin firstmap secondmap joincondition) db))
       (dojoin firstmap secondmap joincondition))
   ))
 

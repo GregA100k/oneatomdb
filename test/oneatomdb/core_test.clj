@@ -40,7 +40,6 @@
 (deftest multiple-and-filters
   (testing "existing two existing fields with and"
     (is (= '({:firstname "Another" :lastname "Allen" :racenumber 4})
-           ;(oa/select @db2 :runners where :lastname = "Allen" andthe :racenumber = 4)
            (oa/select @db2 :runners where (andthe :lastname = "Allen" :racenumber = 4))
            )))
 )
@@ -94,25 +93,25 @@
       (is (= '({:firstname "Greg" :lastname "Allen" :racenumber 3})
               (oa/select @db2 :runners where fullname = "Greg Allen"))))))
 
-(deftest join
+(deftest join-tests
   (testing "combining the tablename and the column name into join name"
     (is (= :testtable.testcolumn (oa/build-join-name :testtable :testcolumn)))
   )
   (testing "joining runners with laps for numeric comparison"
     (is (= '({:runners.firstname "Greg" :runners.lastname "Allen" :runners.racenumber 3
             :laps.runnernumber 3 :laps.course "l" :laps.elapsedtime 20778})
-           (oa/select @db2 (jointhe :runners :laps "onthe" :runners.racenumber = :laps.runnernumber) where :runners.racenumber = 3)))
+           (oa/select @db2 (join :runners :laps "onthe" :runners.racenumber = :laps.runnernumber) where :runners.racenumber = 3)))
   )
   (testing "joining runners with laps for string comparison"
     (is (= '({:runners.firstname "Greg" :runners.lastname "Allen" :runners.racenumber 3
             :laps.runnernumber 3 :laps.course "l" :laps.elapsedtime 20778})
-           (oa/select @db2 (jointhe :runners :laps "onthe" :runners.racenumber = :laps.runnernumber) where :runners.firstname = "Greg")))
+           (oa/select @db2 (join :runners :laps "onthe" :runners.racenumber = :laps.runnernumber) where :runners.firstname = "Greg")))
   )
   (testing "joining runners with laps and courses"
     (is (= '({:runners.firstname "Greg" :runners.lastname "Allen" :runners.racenumber 3
             :laps.runnernumber 3 :laps.course "l" :laps.elapsedtime 20778 
             :courses.id "l" :courses.name "Long Loop" :courses.distance 3.35})
-           (oa/select @db2 (jointhe :runners :laps "onthe" :runners.racenumber = :laps.runnernumber :courses "onthe" :laps.course = :courses.id) where :runners.racenumber = 3)))
+           (oa/select @db2 (join :runners :laps "onthe" :runners.racenumber = :laps.runnernumber :courses "onthe" :laps.course = :courses.id) where :runners.racenumber = 3)))
   )
 )
 
@@ -138,7 +137,7 @@
     (is (= '({:runners.firstname "Greg" :runners.lastname "Allen" :runners.racenumber 3
             :laps.runnernumber 3 :laps.course "l" :laps.elapsedtime 20778 
             :courses.id "l" :courses.name "Long Loop" :courses.distance 3.35})
-           (oa/select @db3 (jointhe :runners :laps "onthe" :runners.racenumber = :laps.runnernumber :courses "onthe" :laps.course = :courses.id) where :runners.racenumber = 3)))
+           (oa/select @db3 (join :runners :laps "onthe" :runners.racenumber = :laps.runnernumber :courses "onthe" :laps.course = :courses.id) where :runners.racenumber = 3)))
   )
 )
 
@@ -147,7 +146,7 @@
     (let [ dbi (atom {:runners [{:firstname "Existing" :lastname "Runner" :racenumber 7}]})
           newrunner {:firstname "Brandnew" :lastname "Runner" :racenumber 8}
           existing-runners (oa/select @dbi :runners)
-          insert-row (oa/insertthe dbi :runners newrunner)
+          insert-row (oa/insert dbi :runners newrunner)
           selectedrunner (oa/select @dbi :runners where :racenumber = 8)
          ]
      (is (= (inc (count existing-runners)) (count (oa/select @dbi :runners))))
@@ -160,7 +159,7 @@
           newrunner2 {:firstname "Secondnew" :lastname "Runner" :racenumber 9}
           newrunners [newrunner1 newrunner2]
           existing-runners (oa/select @dbi :runners)
-          insert-row (oa/insertthe dbi :runners newrunners)
+          insert-row (oa/insert dbi :runners newrunners)
           selectedfirst (oa/select @dbi :runners where :racenumber = 8)
           selectedsecond (oa/select @dbi :runners where :racenumber = 9)
          ]
@@ -173,7 +172,7 @@
     (let [dbi (atom {:runners [{:firstname "Existing" :lastname "Runner" :racenumber 7}]})
           newcourse {:name "Long Loop" :code "l" :distance 8}
           existing-courses (oa/select @dbi :courses)
-          insert-row (oa/insertthe dbi :courses newcourse)
+          insert-row (oa/insert dbi :courses newcourse)
           selectedcourse (oa/select @dbi :courses where :code = "l")
          ]
      (is (= (inc (count existing-courses)) (count (oa/select @dbi :courses))))
