@@ -146,7 +146,7 @@
     (let [ dbi (atom {:runners [{:firstname "Existing" :lastname "Runner" :racenumber 7}]})
           newrunner {:firstname "Brandnew" :lastname "Runner" :racenumber 8}
           existing-runners (oa/select @dbi :runners)
-          insert-row (oa/insert dbi :runners newrunner)
+          insert-row (oa/insert! dbi :runners newrunner)
           selectedrunner (oa/select @dbi :runners where :racenumber = 8)
          ]
      (is (= (inc (count existing-runners)) (count (oa/select @dbi :runners))))
@@ -159,7 +159,7 @@
           newrunner2 {:firstname "Secondnew" :lastname "Runner" :racenumber 9}
           newrunners [newrunner1 newrunner2]
           existing-runners (oa/select @dbi :runners)
-          insert-row (oa/insert dbi :runners newrunners)
+          insert-row (oa/insert! dbi :runners newrunners)
           selectedfirst (oa/select @dbi :runners where :racenumber = 8)
           selectedsecond (oa/select @dbi :runners where :racenumber = 9)
          ]
@@ -172,7 +172,7 @@
     (let [dbi (atom {:runners [{:firstname "Existing" :lastname "Runner" :racenumber 7}]})
           newcourse {:name "Long Loop" :code "l" :distance 8}
           existing-courses (oa/select @dbi :courses)
-          insert-row (oa/insert dbi :courses newcourse)
+          insert-row (oa/insert! dbi :courses newcourse)
           selectedcourse (oa/select @dbi :courses where :code = "l")
          ]
      (is (= (inc (count existing-courses)) (count (oa/select @dbi :courses))))
@@ -185,7 +185,7 @@
     (let [first-runner {:firstname "Existing" :lastname "Runner" :racenumber 7}
           second-runner {:firstname "Fast" :lastname "Runner" :racenumber 8}
           dbi (atom {:runners [first-runner second-runner]})
-          update-db (oa/updatethe dbi :runners "setthe" :lastname "Racer" "where" :racenumber = 8)
+          update-db (oa/update! dbi :runners "setthe" :lastname "Racer" "where" :racenumber = 8)
           updated-runner (oa/select @dbi :runners where :racenumber = 8)
          ]
      (is (= '({:firstname "Fast" :lastname "Racer" :racenumber 8})

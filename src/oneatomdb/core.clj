@@ -101,13 +101,13 @@
       (dojoin firstmap secondmap joincondition))
   ))
 
-(defn insert [a topic newval]
+(defn insert! [a topic newval]
   (if (vector? newval) 
   (swap! a assoc topic (apply conj (topic @a) newval))
   (swap! a assoc topic (conj (topic @a) newval))
 ))
 
-(defn updatethe [a topic setthe column newval & filterlist]
+(defn update! [a topic setthe column newval & filterlist]
   (let [pred (apply where (rest filterlist))
         updatefun (fn [idx itm] 
                    (if (pred itm)
