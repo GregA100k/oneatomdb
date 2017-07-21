@@ -1,7 +1,11 @@
 (ns oneatomdb.core) 
 
 (defmacro select
-  ([db-map topic] `(~(keyword topic) ~db-map))
+  ([db-map topic] 
+    (if (coll? topic)
+      (let [[jointhelabel & joinrest] topic]
+        `(~jointhelabel ~db-map ~@joinrest))
+      `(~(keyword topic) ~db-map)))
   ([db-map topic filter-list]
     (let [[operator field-name comparison field-value & therest] filter-list]
       (if operator

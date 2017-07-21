@@ -30,7 +30,9 @@
                       {:firstname "Another" :lastname "Allen" :racenumber 4}
                       {:firstname "Anon" :lastname "Ymous" :racenumber 5}
                      ] 
-            :laps [{:runnernumber 3 :course "l" :elapsedtime 20778} ]
+            :laps [{:runnernumber 3 :course "l" :elapsedtime 20778} 
+                   {:runnernumber 4 :course "s" :elapsedtime 10500}
+                  ]
             :courses [{:name "Long Loop" :id "l" :distance 3.35}
                       {:name "Short Loop" :id "s" :distance 1}
                      ]
@@ -96,6 +98,11 @@
 (deftest join-tests
   (testing "combining the tablename and the column name into join name"
     (is (= :testtable.testcolumn (oa/build-join-name :testtable :testcolumn)))
+  )
+  (testing "joining without a where clause"
+    (is (= '({:runners.firstname "Greg", :runners.lastname "Allen", :runners.racenumber 3, :laps.runnernumber 3, :laps.course "l", :laps.elapsedtime 20778} 
+            {:runners.firstname "Another", :runners.lastname "Allen", :runners.racenumber 4, :laps.runnernumber 4, :laps.course "s", :laps.elapsedtime 10500}) 
+           (oa/select @db2 (join :runners :laps "onthe" :runners.racenumber = :laps.runnernumber))))
   )
   (testing "joining runners with laps for numeric comparison"
     (is (= '({:runners.firstname "Greg" :runners.lastname "Allen" :runners.racenumber 3
